@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Medicine Reminder</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="dynamic-background">
+        <div class="blob blob1"></div>
+        <div class="blob blob2"></div>
+    </div>
+
+    <!-- Intro Header from Pitch -->
+    <header class="pitch-header glass-panel">
+        <h1>AI Medicine Assistant</h1>
+        <p>An AI-powered medicine reminder that ensures patients never miss a dose by tracking adherence and alerting
+            caregivers in real time.</p>
+    </header>
+
+    <main class="container">
+
+        <!-- Top Row: Members Management -->
+        <section class="members-section glass-panel"
+            style="grid-column: 1 / -1; display:flex; gap:20px; align-items:center; padding: 20px 30px;">
+            <div style="flex:1;">
+                <h2 style="font-size:1.5rem; margin-bottom:5px;">Family Members</h2>
+                <p class="section-desc">Manage profiles for tracking.</p>
+            </div>
+            <form id="add-member-form" style="display:flex; gap:10px; flex:2;">
+                <input type="text" id="new-member-name" placeholder="Name" required
+                    style="flex:1; padding:10px; border-radius:8px; border:1px solid #ccc;">
+                <input type="number" id="new-member-age" placeholder="Age" required min="1" max="120"
+                    style="flex:0.6; padding:10px; border-radius:8px; border:1px solid #ccc;">
+                <select id="new-member-gender" required
+                    style="flex:1; padding:10px; border-radius:8px; border:1px solid #ccc;">
+                    <option value="" disabled selected>Gender...</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+                <button type="submit" class="btn-primary" style="flex:0.5;">Add Member</button>
+            </form>
+        </section>
+
+        <!-- Standalone Quick Scanner Section -->
+        <section class="quick-scanner-section glass-panel"
+            style="grid-column: 1 / -1; display:flex; gap:20px; align-items:center; padding: 20px 30px; background: linear-gradient(135deg, #f0fdf4, #a7f3d0);">
+            <div style="flex:1;">
+                <h2 style="font-size:1.5rem; margin-bottom:5px; color: #065f46;">🔍 Quick Medicine Scanner</h2>
+                <p class="section-desc" style="color: #047857; margin-bottom: 0;">Upload or snap a picture of any medicine to instantly see its uses, age limits, and dosage details without scheduling it.</p>
+            </div>
+            <div style="flex:1; display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
+                <label for="standalone-med-scanner" class="btn-primary" style="cursor:pointer; display:inline-flex; align-items:center; gap:8px; width: auto; padding: 10px 15px; font-size: 0.95rem;">
+                    📁 Upload Pic
+                    <input type="file" id="standalone-med-scanner" accept="image/*" style="display:none;">
+                </label>
+                <button type="button" id="btn-live-camera" class="btn-primary" style="display:inline-flex; align-items:center; gap:8px; width: auto; padding: 10px 15px; font-size: 0.95rem; background:#3b82f6; border:none;">
+                    📷 Live Camera
+                </button>
+            </div>
+        </section>
+
+        <!-- Standalone Scan Results Area -->
+        <div id="standalone-scan-result" class="glass-panel" style="display: none; grid-column: 1 / -1; padding: 20px 30px; background: white; border-left: 5px solid var(--primary);">
+            <h4 style="color: var(--primary); display:flex; align-items:center; gap:10px; font-size: 1.3rem; margin-bottom: 0;">
+                <span id="st-scanner-spinner" style="font-size: 1.5rem; display: inline-block;">🔍</span>
+                <span id="st-scanner-status">Analyzing Medication Image...</span>
+            </h4>
+            <div id="st-scanner-details" style="display: none; margin-top: 20px; font-size: 1rem; line-height: 1.6; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div style="background: #f9fafb; padding: 15px; border-radius: 8px;">
+                    <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 5px; font-weight: 600;">💊 Identified Medicine</p>
+                    <p style="font-size: 1.1rem; color: #111827;" id="st-scan-med-name">--</p>
+                </div>
+                <div style="background: #f9fafb; padding: 15px; border-radius: 8px;">
+                    <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 5px; font-weight: 600;">🩺 Common Uses</p>
+                    <p style="font-size: 1.1rem; color: #111827;" id="st-scan-uses">--</p>
+                </div>
+                <div style="background: #f9fafb; padding: 15px; border-radius: 8px;">
+                    <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 5px; font-weight: 600;">👤 Recommended Age Group</p>
+                    <p style="font-size: 1.1rem; color: #111827;" id="st-scan-age">--</p>
+                </div>
+                <div style="background: #f9fafb; padding: 15px; border-radius: 8px;">
+                    <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 5px; font-weight: 600;">⚖️ Safe Dosage Info</p>
+                    <p style="font-size: 1.1rem; color: #111827;" id="st-scan-dose">--</p>
+                </div>
+            </div>
+            <button type="button" id="st-btn-close" class="btn-primary" style="margin-top:20px; padding:8px 16px; background:#e5e7eb; color:#374151; width:auto; border:none; box-shadow:none;">Close Scanner Details</button>
+        </div>
+
+        <!-- Left Column: Patient Meds -->
+        <section class="patient-section glass-panel">
+            <header class="section-header">
+                <h2>Today's Medications</h2>
+                <div class="patient-info">
+                    <span id="patient-name">Your Patients</span>
+                    <button id="btn-edit-name"
+                        style="font-size:0.9rem; background:rgba(0,0,0,0.05);border:none;cursor:pointer;color:#6b7280;margin-left:5px;padding:3px 8px;border-radius:6px;">+
+                        Add Patient Name</button>
+                    <div class="adherence-badge">
+                        <span id="adherence-score">--</span>% Adherence
+                    </div>
+                </div>
+            </header>
+
+            <p class="section-desc">We propose an intelligent healthcare assistant that leverages AI to gently remind
+                users and optimize medication adherence.</p>
+
+            <ul id="medication-list" class="medication-list">
+                <!-- Meds injected via JS -->
+            </ul>
+
+            <div class="add-med-container mt-4">
+                <hr style="border: 0; border-top: 1px dashed rgba(0,0,0,0.1); margin: 20px 0;">
+                <h3 style="margin-bottom: 10px; font-size: 1.2rem;">Add New Medication</h3>
+                <form id="add-med-form" class="add-med-form">
+                    <div style="display: flex; gap: 10px; width: 100%;">
+                        <input type="text" id="new-med-patient" placeholder="Patient Name (e.g., Robert)" style="flex:1"
+                            required>
+                        <input type="text" id="new-med-name" placeholder="Medicine Name (e.g., Aspirin)" style="flex:2;"
+                            required>
+                        <div style="flex:1; display:flex; gap:5px;">
+                            <label for="new-med-image" style="flex:1; display:flex; align-items:center; justify-content:center; background:white; border:1px solid #d1d5db; border-radius:8px; padding:0 8px; font-size:0.85rem; cursor:pointer;" title="Upload Image">
+                                📁 Pic <input type="file" id="new-med-image" accept="image/*" style="display:none;">
+                            </label>
+                            <button type="button" id="btn-live-camera-add" class="btn-primary" style="flex:1; padding:8px; font-size:0.85rem; background:#3b82f6; border:none; box-shadow:none; white-space:nowrap;" title="Use Webcam">📷 Cam</button>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; width: 100%;">
+                        <input type="text" id="new-med-dosage" placeholder="Dosage" required style="flex:1;">
+                        <input type="text" id="new-med-instructions" placeholder="Instructions" required
+                            style="flex:2;">
+                    </div>
+                    <div style="display: flex; gap: 10px; width: 100%;">
+                        <select id="new-med-frequency" required style="flex:1;">
+                            <option value="Once a day">Once a day</option>
+                            <option value="Twice a day">Twice a day</option>
+                            <option value="Thrice a day">Thrice a day</option>
+                        </select>
+                        <input type="date" id="new-med-date" style="flex:1" required>
+                        <input type="time" id="new-med-time" style="flex:1" required title="Time of Day">
+                        <label for="new-med-alarm"
+                            style="flex:1.5; display:flex; align-items:center; background:white; border:1px solid #d1d5db; border-radius:8px; padding:0 12px; font-size:0.9rem; cursor:pointer; color:var(--text-light); transition: border-color 0.2s ease;">
+                            <span id="alarm-file-name"
+                                style="margin-right:5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">🎵
+                                Custom Audio Alarm</span>
+                            <input type="file" id="new-med-alarm" accept="audio/*" style="display:none;"
+                                onchange="document.getElementById('alarm-file-name').textContent = this.files[0] ? '🎵 ' + this.files[0].name : '🎵 Custom Audio Alarm';">
+                        </label>
+                    </div>
+
+                    <!-- AI Image Scan Results Area -->
+                    <div id="ai-scan-result" style="display: none; width: 100%; padding: 15px; margin-top: 10px; background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--primary); border-radius: 8px;">
+                        <h4 style="color: var(--primary); display:flex; align-items:center; gap:8px; margin-bottom: 0;">
+                            <span id="scanner-spinner" style="font-size: 1.2rem; display: inline-block;">🔍</span>
+                            <span id="scanner-status">Analyzing Medication Image...</span>
+                        </h4>
+                        <div id="scanner-details" style="display: none; margin-top: 10px; font-size: 0.95rem; line-height: 1.5;">
+                            <p><strong>💊 Identified:</strong> <span id="scan-med-name">Paracetamol / Acetaminophen</span></p>
+                            <p><strong>🩺 Uses:</strong> <span id="scan-uses">Relieves mild to moderate pain and reduces fever.</span></p>
+                            <p><strong>👤 Age Group:</strong> <span id="scan-age">Adults & Children 12+ years</span></p>
+                            <p><strong>⚖️ Recommended Dose:</strong> <span id="scan-dose">1-2 tablets (500mg) every 4-6 hours. Max 8 tablets / 24h.</span></p>
+                            <button type="button" id="btn-apply-scan" class="btn-primary" style="margin-top:12px; padding:8px 12px; font-size:0.9rem; background:#3b82f6; border-radius:6px; box-shadow:none;">Auto-Fill Details</button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Add Medicine</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Right Column: AI / Caregiver Alerts -->
+        <section class="caregiver-section glass-panel">
+            <header class="section-header">
+                <h2>Caregiver Overview</h2>
+                <span class="status-indicator"></span>
+            </header>
+
+            <div class="ai-status">
+                <div class="ai-icon">🤖</div>
+                <div>
+                    <h3>AI Monitoring Active</h3>
+                    <p>Behavior patterns tracked. Escalation alerts ready.</p>
+                </div>
+            </div>
+
+            <div class="alarm-toggle-container"
+                style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.5); padding: 10px 15px; border-radius: 12px;">
+                <input type="checkbox" id="alarm-toggle"
+                    style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary);">
+                <label for="alarm-toggle" style="cursor: pointer; font-weight: 600; color: var(--text-dark);">🔔 Sound
+                    Alarm on Missed Dose</label>
+            </div>
+
+            <div class="contact-settings"
+                style="display: flex; flex-direction: column; gap: 5px; background: rgba(255,255,255,0.5); padding: 10px 15px; border-radius: 12px;">
+                <label for="caregiver-phone" style="font-weight: 600; color: var(--text-dark); font-size: 0.95rem;">📱
+                    Caregiver Phone Number (For SMS/WhatsApp)</label>
+                <input type="tel" id="caregiver-phone" placeholder="+1 234 567 890"
+                    style="padding: 8px 12px; border-radius: 8px; border: 1px solid #d1d5db; outline: none; font-family: 'Inter', sans-serif;">
+            </div>
+
+            <div class="alerts-container" id="alerts-container">
+                <!-- Alerts injected via JS -->
+            </div>
+
+            <div class="app-pitch">
+                <h3>Why this matters</h3>
+                <p>For many elderly individuals, remembering daily medication can be stressful. We track intake and
+                    analyze habits, sending real-time alerts if doses are missed.</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container"
+        style="position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 9999;">
+    </div>
+
+    <!-- Live Camera Modal -->
+    <div id="camera-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.6); z-index: 9998; backdrop-filter: blur(4px);"></div>
+    <div id="camera-modal" class="glass-panel" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index: 9999; padding:25px; text-align:center; border: 2px solid var(--primary); min-width: 350px;">
+        <h3 style="margin-bottom:15px; color:var(--text-dark); display:flex; align-items:center; justify-content:center; gap:8px;">📷 Live Medicine Scanner</h3>
+        <video id="camera-feed" width="320" height="240" autoplay playsinline style="border-radius: 12px; background: #000; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);"></video>
+        <canvas id="camera-canvas" style="display:none;"></canvas>
+        <div style="margin-top:20px; display:flex; gap:15px; justify-content:center;">
+            <button id="btn-capture" class="btn-primary" style="padding:10px 20px; font-size:1rem; border:none;">📸 Capture & Analyze</button>
+            <button id="btn-close-camera" style="padding:10px 20px; font-size:1rem; background:#e5e7eb; border:none; border-radius:8px; cursor:pointer; color:#374151; font-weight:600;">Cancel</button>
+        </div>
+    </div>
+</body>
+
+</html>
