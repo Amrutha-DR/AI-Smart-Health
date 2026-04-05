@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Medicine Reminder</title>
+    <link rel="shortcut icon" href="na.jpg" type="image/jpg">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="dynamic-background">
+        <div class="blob blob1"></div>
+        <div class="blob blob2"></div>
+    </div>
+
+    <!-- Floating Voice Assistant for Blind Users -->
+    <div id="ai-voice-companion" class="glass-panel" style="position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; cursor: pointer; display: flex; align-items: center; gap: 15px; padding: 15px 30px; border-radius: 50px; background: rgba(124, 58, 237, 0.9); color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.3); transition: all 0.3s ease;">
+        <div style="font-size: 2rem;">🎙️</div>
+        <div>
+            <h4 style="margin: 0; font-size: 1rem;">AI Voice Companion</h4>
+            <p style="margin: 0; font-size: 0.7rem; opacity: 0.9;">Tap or Press [Space] to Talk</p>
+        </div>
+    </div>
+
+    <!-- Intro Header from Pitch -->
+    <header class="pitch-header glass-panel">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1>AI Medicine Assistant</h1>
+                <p>An AI-powered medicine reminder that ensures patients never miss a dose by tracking adherence and alerting caregivers in real time.</p>
+            </div>
+            <div id="user-switcher" class="glass-panel" style="padding: 10px; border-radius: 12px; display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.1);">
+                <span style="font-size: 0.8rem; font-weight: 600;">👤 User:</span>
+                <select id="user-id-select" style="padding: 5px; border-radius: 5px; border: none; background: white; cursor: pointer;">
+                    <option value="user1">User 1</option>
+                    <option value="user2">User 2</option>
+                    <option value="user3">User 3</option>
+                </select>
+                <div id="sync-status-indicator" style="font-size: 0.7rem;"></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- Top Row: Members Management -->
+        <section class="members-section glass-panel"
+            style="grid-column: 1 / -1; display:flex; gap:20px; align-items:center; padding: 20px 30px;">
+            <div style="flex:1;">
+                <h2 style="font-size:1.5rem; margin-bottom:5px;">Family Members</h2>
+                <p class="section-desc">Manage profiles for tracking.</p>
+            </div>
+            <form id="add-member-form" style="display:flex; gap:10px; flex:2;">
+                <input type="text" id="new-member-name" placeholder="Name" required
+                    style="flex:1; padding:10px; border-radius:8px; border:1px solid #ccc;">
+                <input type="text" id="new-member-phone" placeholder="Phone (e.g. +91...)" required
+                    style="flex:1; padding:10px; border-radius:8px; border:1px solid #ccc;">
+                <select id="new-member-gender" required
+                    style="flex:1; padding:10px; border-radius:8px; border:1px solid #ccc;">
+                    <option value="" disabled selected>Gender...</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+                <button type="submit" class="btn-primary" style="flex:0.5;">Add Member</button>
+            </form>
+        </section>
+
+        <!-- Left Column: Patient Meds -->
+        <section class="patient-section glass-panel">
+            <header class="section-header">
+                <h2>Today's Medications</h2>
+                <div class="patient-info">
+                    <span id="patient-name">Your Patients</span>
+                    <button id="btn-edit-name"
+                        style="font-size:0.9rem; background:rgba(0,0,0,0.05);border:none;cursor:pointer;color:#6b7280;margin-left:5px;padding:3px 8px;border-radius:6px;">+
+                        Add Patient Name</button>
+                    <div class="adherence-badge">
+                        <span id="adherence-score">--</span>% Adherence
+                    </div>
+                    <button id="btn-blind-mode" class="btn-primary" style="background: #7c3aed; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; border: none; cursor: pointer;">
+                        👁️ Blind Mode: <span id="blind-mode-status">OFF</span>
+                    </button>
+                </div>
+                <!-- Patient Phone Book (New Section) -->
+                <div id="patient-directory" style="font-size: 0.7rem; background: rgba(0,0,0,0.03); padding: 5px 10px; border-radius: 8px; margin-top: 5px; display: flex; gap: 10px; overflow-x: auto; white-space: nowrap;">
+                    <strong>📞 Directory:</strong>
+                    <div id="directory-list" style="display: flex; gap: 10px;">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+            </header>
+
+            <p class="section-desc">We propose an intelligent healthcare assistant that leverages AI to gently remind
+                users and optimize medication adherence.</p>
+
+            <ul id="medication-list" class="medication-list">
+                <!-- Meds injected via JS -->
+            </ul>
+
+            <div class="add-med-container mt-4">
+                <hr style="border: 0; border-top: 1px dashed rgba(0,0,0,0.1); margin: 20px 0;">
+                <h3 style="margin-bottom: 10px; font-size: 1.2rem;">Add New Medication</h3>
+                <form id="add-med-form" class="add-med-form">
+                    <div style="display: flex; gap: 10px; width: 100%;">
+                        <input type="text" id="new-med-patient" placeholder="Patient Name" style="flex:1" required>
+                        <input type="text" id="new-med-phone" placeholder="Recipient Phone (+91...)" style="flex:1" required>
+                        <input type="text" id="new-med-name" placeholder="Medicine Name" style="flex:1;" required>
+                        <input type="file" id="new-med-image" accept="image/*" style="flex:1;" title="Photo">
+                    </div>
+                    <div style="display: flex; gap: 10px; width: 100%;">
+                        <input type="text" id="new-med-dosage" placeholder="Dosage" required style="flex:1;">
+                        <input type="text" id="new-med-instructions" placeholder="Instructions" required
+                            style="flex:2;">
+                    </div>
+                    <div style="display: flex; gap: 10px; width: 100%;">
+                        <select id="new-med-frequency" required style="flex:1;">
+                            <option value="Once a day">Once a day</option>
+                            <option value="Twice a day">Twice a day</option>
+                            <option value="Thrice a day">Thrice a day</option>
+                        </select>
+                        <input type="date" id="new-med-date" style="flex:1" required>
+                        <input type="time" id="new-med-time" style="flex:1" required title="Time of Day">
+                    </div>
+                    <button type="submit" class="btn-primary">Add Medicine</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Right Column: AI / Caregiver Alerts -->
+        <section class="caregiver-section glass-panel">
+            <header class="section-header">
+                <h2>Caregiver Overview</h2>
+                <span class="status-indicator"></span>
+            </header>
+
+            <div class="ai-status">
+                <div class="ai-icon">🤖</div>
+                <div style="flex:1;">
+                    <h3>AI Monitoring Active</h3>
+                    <p>Behavior patterns tracked. Escalation alerts ready.</p>
+                    <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+                        <input type="text" id="caregiver-phone" placeholder="Primary Caregiver Phone" style="padding:5px; border-radius:5px; border:1px solid #ccc; font-size:0.8rem;">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="whatsapp-toggle" checked>
+                            <span class="slider"></span>
+                            <span style="font-size:0.7rem; margin-left:5px;">WhatsApp Alerts</span>
+                        </label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="alarm-toggle">
+                            <span class="slider"></span>
+                            <span style="font-size:0.7rem; margin-left:5px;">Sound Alerts</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sms-log-container glass-panel" style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.05);">
+                <h3 style="font-size: 0.9rem; margin-bottom: 10px; display: flex; align-items: center; gap: 5px;">
+                    📡 Outbound SMS Log (Cloud Gateway)
+                </h3>
+                <ul id="sms-dispatch-log" style="list-style: none; padding: 0; font-size: 0.7rem; max-height: 100px; overflow-y: auto;">
+                    <li style="opacity: 0.5;">No outgoing alerts in this session.</li>
+                </ul>
+            </div>
+
+            <div class="alerts-container" id="alerts-container">
+                <!-- Alerts injected via JS -->
+            </div>
+
+            <div class="app-pitch">
+                <h3>Why this matters</h3>
+                <p>For many elderly individuals, remembering daily medication can be stressful. We track intake and
+                    analyze habits, sending real-time alerts if doses are missed.</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
