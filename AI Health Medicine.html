@@ -55,7 +55,9 @@
             <form id="add-member-form" style="display:flex; gap:10px; flex:2;">
                 <input type="text" id="new-member-name" placeholder="Name" required
                     style="flex:1; padding:10px; border-radius:8px; border:1px solid #ccc;">
-                <input type="text" id="new-member-phone" placeholder="Phone (e.g. +91...)" required
+                <input type="text" id="new-member-phone" placeholder="Phone (+91...)" required
+                    style="flex:1; padding:10px; border-radius:8px; border:1px solid #ccc;">
+                <input type="email" id="new-member-email" placeholder="Gmail Address" required
                     style="flex:1; padding:10px; border-radius:8px; border:1px solid #ccc;">
                 <select id="new-member-gender" required
                     style="flex:1; padding:10px; border-radius:8px; border:1px solid #ccc;">
@@ -106,7 +108,10 @@
                 <form id="add-med-form" class="add-med-form">
                     <div style="display: flex; gap: 10px; width: 100%;">
                         <input type="text" id="new-med-patient" placeholder="Patient Name" style="flex:1" required>
-                        <input type="text" id="new-med-phone" placeholder="Recipient Phone (+91...)" style="flex:1" required>
+                        <input type="text" id="new-med-phone" placeholder="Phone (+91...)" style="flex:1" required>
+                        <input type="email" id="new-med-email" placeholder="Gmail for Alerts" style="flex:1" required>
+                    </div>
+                    <div style="display: flex; gap: 10px; width: 100%; margin-top:10px;">
                         <input type="text" id="new-med-name" placeholder="Medicine Name" style="flex:1;" required>
                         <input type="file" id="new-med-image" accept="image/*" style="flex:1;" title="Photo">
                     </div>
@@ -146,8 +151,16 @@
                         <label class="toggle-switch">
                             <input type="checkbox" id="whatsapp-toggle" checked>
                             <span class="slider"></span>
-                            <span style="font-size:0.7rem; margin-left:5px;">WhatsApp Alerts</span>
+                            <span style="font-size:0.7rem; margin-left:5px;">WhatsApp</span>
                         </label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="gmail-toggle" checked>
+                            <span class="slider"></span>
+                            <span style="font-size:0.7rem; margin-left:5px;">Gmail Alerts</span>
+                        </label>
+                        <div id="mailsender-status" style="font-size:0.6rem; color:#10b981; font-weight:bold; background:rgba(16,185,129,0.1); padding:3px 8px; border-radius:5px; display:flex; align-items:center; gap:5px;">
+                            ☁️ MailSender.com Connected
+                        </div>
                         <label class="toggle-switch">
                             <input type="checkbox" id="alarm-toggle">
                             <span class="slider"></span>
@@ -159,15 +172,42 @@
 
             <div class="sms-log-container glass-panel" style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.05);">
                 <h3 style="font-size: 0.9rem; margin-bottom: 10px; display: flex; align-items: center; gap: 5px;">
-                    📡 Outbound SMS Log (Cloud Gateway)
+                    📡 Outbound Alerts Log (SMS & Gmail)
                 </h3>
-                <ul id="sms-dispatch-log" style="list-style: none; padding: 0; font-size: 0.7rem; max-height: 100px; overflow-y: auto;">
-                    <li style="opacity: 0.5;">No outgoing alerts in this session.</li>
+                <ul id="sms-dispatch-log" style="list-style: none; padding: 0; font-size: 0.7rem; max-height: 120px; overflow-y: auto;">
+                    <li style="opacity: 0.5;">No alerts dispatched yet.</li>
                 </ul>
             </div>
 
             <div class="alerts-container" id="alerts-container">
                 <!-- Alerts injected via JS -->
+            </div>
+
+            <!-- Patient Device Simulator (Mock Incoming) -->
+            <div id="patient-simulator" style="margin-top: 40px; padding: 20px; background: #111827; border-radius: 20px; color: white; display: flex; flex-direction: column; align-items: center; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border: 4px solid #374151;">
+                <h3 style="font-size: 0.8rem; margin-bottom: 15px; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px;">📱 Patient Companion Simulation</h3>
+                <div style="display: flex; gap: 20px; width: 100%; flex-wrap: wrap; justify-content: center;">
+                    <!-- SMS Device -->
+                    <div id="mock-phone" style="width: 250px; height: 450px; background: #000; border-radius: 30px; border: 8px solid #262626; padding: 15px; position: relative; overflow: hidden; display: flex; flex-direction: column;">
+                        <div style="width: 60px; height: 4px; background: #262626; border-radius: 10px; align-self: center; margin-bottom: 15px;"></div>
+                        <div style="flex: 1; background: #1a1a1a; border-radius: 15px; padding: 10px; display: flex; flex-direction: column;">
+                            <div style="font-size: 0.6rem; color: #10b981; font-weight: bold; margin-bottom: 10px; text-align: center;">💬 Messages (Direct SMS)</div>
+                            <div id="sms-inbox" style="display: flex; flex-direction: column; gap: 8px;">
+                                <!-- Mock SMS injected here -->
+                                <div style="font-size: 0.5rem; opacity: 0.3; text-align: center; margin-top: 50px;">Waiting for SMS...</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Gmail Inbox -->
+                    <div id="mock-inbox" style="width: 350px; height: 450px; background: #fff; border-radius: 15px; border: 5px solid #262626; color: #111827; display: flex; flex-direction: column; overflow: hidden;">
+                        <div style="background: #ea4335; padding: 10px; color: white; font-weight: bold; font-size: 0.8rem; display: flex; align-items: center; gap: 5px;">
+                            ✉️ Gmail Inbox
+                        </div>
+                        <div style="flex: 1; overflow-y: auto; padding: 10px;" id="gmail-inbox">
+                            <div style="text-align: center; margin-top: 100px; color: #9ca3af; font-size: 0.7rem;">Your primary inbox is empty.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="app-pitch">
